@@ -1,29 +1,35 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Vector where
 
-import qualified Data.Complex as DC
-
--- | Two type of scalars - real and complex
+-- |
 --
-type C = DC.Complex Double
+data Scalar
 
-type R = Double
+data ScalarC
 
--- | Declare Scalar instances
+data OneD
+
+data OneDC
+
+-- |
 --
-class Scalar s
+class VectorSpace v s
 
-instance Scalar C
+instance VectorSpace OneD Scalar
 
-instance Scalar R
+instance VectorSpace OneDC Scalar
 
--- | Types of vectors
+instance VectorSpace OneDC ScalarC
+
+instance VectorSpace ScalarC Scalar
+
+-- |
 --
-data OneD c
-
-data TwoD c
-
-data ThreeD c
+data Dim
+    = Dim0
+    | Dim1 Int
+    deriving (Show, Eq, Ord)
