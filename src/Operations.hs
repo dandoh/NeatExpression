@@ -9,16 +9,11 @@ module Operations where
 
 import qualified Data.IntMap.Strict as IM
 import Expression
-import Vector
+
+
 
 -- |
 --
-getDimension :: Expression a -> Dim
-getDimension (Expression n mp) =
-    case IM.lookup n mp of
-        Just (dim, _) -> dim
-        Nothing -> error "error constructing the expression"
-
 ensureSameShape :: Expression a -> Expression a -> Bool
 ensureSameShape x y = getDimension x == getDimension y
 
