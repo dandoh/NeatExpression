@@ -23,11 +23,14 @@ c = varc "c"
 main :: IO ()
 main = do
     print x
-    print r
-    print xc
-    print c
-    print $ x + x
-    print $ xc + xc
-    print $ r * x
-    print $ r * xc
-    print $ r * c
+    let y = x + x
+    let z = y + y
+    print y
+    print z
+--    print xc
+--    print c
+--    print $ x + x
+--    print $ xc + xc
+--    print $ r * x
+--    print $ r * xc
+--    print $ r * c

@@ -38,16 +38,20 @@ data OneDC
 -- | Constraint
 --
 class Property v =>
-      Addable v
+      Piecewise v
 
 
-class Addable v =>
+class Piecewise v =>
       VectorSpace v s
+
+
+class VectorSpace v s =>
+      DotProductSpace v s
     | v -> s
 
 
 -- | instances
---
+-- TODO : TypeRep instead of using this Property type class ?
 instance Property R where
     on _ = Real
 
@@ -60,13 +64,13 @@ instance Property OneD where
 instance Property OneDC where
     on _ = Complex
 
-instance Addable R
+instance Piecewise R
 
-instance Addable C
+instance Piecewise C
 
-instance Addable OneD
+instance Piecewise OneD
 
-instance Addable OneDC
+instance Piecewise OneDC
 
 instance VectorSpace R R
 
@@ -75,6 +79,13 @@ instance VectorSpace C R
 instance VectorSpace OneD R
 
 instance VectorSpace OneDC R
+
+instance VectorSpace OneDC C
+
+instance DotProductSpace OneD R
+
+instance DotProductSpace OneDC C
+
 
 -- | Proposed new expression type
 --
@@ -95,6 +106,8 @@ data Node
     | DVar String
     | Sum RC Args
     | Prod RC Args
+    | Scale RC Args --- scalar is in the first
+    | Dot RC Args
     deriving (Show, Eq, Ord)
 
 getDimension :: Expression a -> [Int]
