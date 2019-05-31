@@ -83,9 +83,7 @@ can still put a phantom type in the left hand side. Doing this, we can carry inf
         deriving (Show, Eq, Ord)
       
     ```
-    ```
-    -- | Scalar and vectors
-    --
+    ```haskell
     data R
         deriving (Addable)
 
