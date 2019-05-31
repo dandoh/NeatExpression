@@ -9,6 +9,8 @@ module Operations
     , varc
     , (+)
     , (*)
+    , scale
+    , dot
     ) where
 
 import qualified Data.IntMap.Strict as IM
@@ -72,4 +74,4 @@ dot :: DotProductSpace v s => Expression v -> Expression v -> Expression s
 dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression res newMap
   where
     mergedMap = mp1 `IM.union` mp2
-    (newMap, res) = addEdge mergedMap (getDimension e2, Dot (on e1) [n1, n2]) -- TODO : (on e1) is this right?
+    (newMap, res) = addEdge mergedMap ([], Dot (on e1) [n1, n2]) -- TODO : (on e1) is this right?

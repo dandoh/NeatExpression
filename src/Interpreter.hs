@@ -68,7 +68,7 @@ instance Evaluable OneD where
     eval :: Expression OneD -> ValMaps -> Array Int Double
     eval e@(Expression n mp) valMap =
         case IM.lookup n mp of
-            Just ([], Var name) ->
+            Just ([size], Var name) ->
                 case Map.lookup name $ vm1 valMap of
                     Just val -> val
                     _ -> error "no value associated with the variable"
@@ -85,5 +85,12 @@ instance Evaluable OneD where
                     lst1 = U.elems $ eval subExp1 valMap
                     lst2 = U.elems $ eval subExp2 valMap
                     lstRes = zipWith (*) lst1 lst2
+                 in U.listArray (0, size - 1) lstRes
+            Just ([size], Scale Real [node1, node2]) ->
+                let subExp1 = Expression node1 mp :: Expression R
+                    subExp2 = Expression node2 mp :: Expression OneD
+                    scale = eval subExp1 valMap
+                    lst = U.elems $ eval subExp2 valMap
+                    lstRes = map (* scale) lst
                  in U.listArray (0, size - 1) lstRes
             _ -> error "expression structure is wrong"
