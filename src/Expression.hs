@@ -15,110 +15,90 @@ module Expression where
 import Data.IntMap (IntMap)
 import qualified Data.IntMap.Strict as IM
 
--- | Scalar and vectors
+-- | Fields
+--
+data RC
+    = Real
+    | Complex
+    deriving (Show, Eq, Ord)
+
+class Property f where
+    on :: Expression f -> RC
+
+-- | Vector type
 --
 data R
-    deriving (Addable)
 
 data C
-    deriving (Addable)
 
 data OneD
-    deriving (Addable)
 
 data OneDC
-    deriving (Addable)
 
--- | Real Vector Space
+-- | Constraint
 --
-class HasShape v =>
+class Property v =>
       Addable v
 
 
 class Addable v =>
-      RealVectorSpace v s
+      VectorSpace v s
     | v -> s
 
 
-instance RealVectorSpace R R
+-- | instances
+--
+instance Property R where
+    on _ = Real
 
-instance RealVectorSpace C R
+instance Property C where
+    on _ = Complex
 
-instance RealVectorSpace OneD R
+instance Property OneD where
+    on _ = Real
 
-instance RealVectorSpace OneDC R
+instance Property OneDC where
+    on _ = Complex
+
+instance Addable R
+
+instance Addable C
+
+instance Addable OneD
+
+instance Addable OneDC
+
+instance VectorSpace R R
+
+instance VectorSpace C R
+
+instance VectorSpace OneD R
+
+instance VectorSpace OneDC R
 
 -- | Proposed new expression type
 --
-type Internal = IntMap (Dim, Node)
+type ExpressionMap = IntMap (Dim, Node)
+
+type Dim = [Int]
+
+type Args = [Int]
 
 data Expression a =
     Expression
-        Int -- the final product of this expression
-        (IntMap (Dim, Node)) -- all subexpressions, including vars
+        Int -- the index this expression
+        ExpressionMap -- all subexpressions
     deriving (Show, Eq, Ord)
 
 data Node
     = Var String
     | DVar String
-    | Op Operation
+    | Sum RC Args
+    | Prod RC Args
     deriving (Show, Eq, Ord)
 
-data Operation
-    = Sum Int Int
-    | Prod Int Int
-    deriving (Show, Eq, Ord)
-
--- | Dimension type
---
-data Dim
-    = Dim0
-    | Dim1 Int
-    deriving (Show, Eq, Ord)
-
-getDimension :: Expression a -> Dim
+getDimension :: Expression a -> [Int]
 getDimension (Expression n mp) =
     case IM.lookup n mp of
         Just (dim, _) -> dim
-        Nothing -> error "no dimension of expression"
-
--- | Utilities to get shape
---
-type family Shape a where
-    Shape R = ()
-    Shape C = ()
-    Shape OneD = Int
-    Shape OneDC = Int
-    Shape _ = ()
-
-class Eq (Shape v) =>
-      HasShape v
-    where
-    getShape :: Expression v -> Shape v
-
-instance HasShape R where
-    getShape (Expression n mp) =
-        case IM.lookup n mp of
-            Just (Dim0, _) -> ()
-            _ -> error "Expression of R but dimension is not Dim0"
-
-instance HasShape C where
-    getShape (Expression n mp) =
-        case IM.lookup n mp of
-            Just (Dim0, _) -> ()
-            _ -> error "Expression of C but dimension is not Dim0"
-
-instance HasShape OneD where
-    getShape (Expression n mp) =
-        case IM.lookup n mp of
-            Just (Dim1 size, _) -> size
-            _ -> error "Expression of OneD but dimension is not Int"
-
-instance HasShape OneDC where
-    getShape (Expression n mp) =
-        case IM.lookup n mp of
-            Just (Dim1 size, _) -> size
-            _ -> error "Expression of OneD but dimension is not Int"
-
-sameShape :: HasShape a => Expression a -> Expression a -> Bool
-sameShape x y = getShape x == getShape y
+        Nothing -> error "not found node in map"

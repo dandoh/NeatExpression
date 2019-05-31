@@ -2,6 +2,7 @@ module Main where
 
 import Expression
 import Operations
+import Prelude hiding ((+), (*))
 
 -- ℝ^5 vector
 x :: Expression OneD
@@ -25,9 +26,8 @@ main = do
     print r
     print xc
     print c
-    print $ x |+| x
-    print $ xc |+| xc
-    print $ r |*| x
-    print $ r |*| xc
-    print $ r |*| c
-
+    print $ x + x
+    print $ xc + xc
+    print $ r * x
+    print $ r * xc
+    print $ r * c
