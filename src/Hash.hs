@@ -2,6 +2,7 @@
 
 module Hash where
 
+import qualified Data.IntMap.Strict as IM
 import Expression
 
 -- |
@@ -31,3 +32,21 @@ instance HasHash Node where
             Var name -> foldr moveBase 0 name
             DVar name -> foldr moveBase 1123 name
             Op op -> hash op
+
+-- |
+data IsClash
+    = IsClash
+    | IsDuplicate Int
+    | IsNew Int
+    deriving (Eq, Show, Ord)
+
+isClash :: Internal -> Node -> Int -> IsClash
+isClash exprs newNode newHash =
+    case IM.lookup newHash exprs of
+        Nothing -> IsNew newHash
+        Just (_, old) ->
+            if old == newNode
+                then IsDuplicate newHash
+                else IsClash
+
+

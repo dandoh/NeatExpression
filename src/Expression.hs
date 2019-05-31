@@ -48,6 +48,8 @@ instance RealVectorSpace OneDC R
 
 -- | Proposed new expression type
 --
+type Internal = IntMap (Dim, Node)
+
 data Expression a =
     Expression
         Int -- the final product of this expression
@@ -117,4 +119,3 @@ instance HasShape OneDC where
 
 sameShape :: HasShape a => Expression a -> Expression a -> Bool
 sameShape x y = getShape x == getShape y
-
