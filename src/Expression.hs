@@ -2,8 +2,13 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module Expression where
 
@@ -13,24 +18,33 @@ import qualified Data.IntMap.Strict as IM
 -- | Scalar and vectors
 --
 data R
+    deriving (Additive)
 
 data C
+    deriving (Additive)
 
 data OneD
+    deriving (Additive)
 
 data OneDC
+    deriving (Additive)
 
--- | Vector space instances
+-- | Real Vector Space
 --
-class VectorSpace v s
+class Additive v
 
-instance VectorSpace OneD R
+class Additive v =>
+      RealVectorSpace v s
+    | v -> s
 
-instance VectorSpace OneDC R
 
-instance VectorSpace OneDC C
+instance RealVectorSpace R R
 
-instance VectorSpace C R
+instance RealVectorSpace C R
+
+instance RealVectorSpace OneD R
+
+instance RealVectorSpace OneDC R
 
 -- | Proposed new expression type
 --
@@ -57,52 +71,50 @@ data Dim
     | Dim1 Int
     deriving (Show, Eq, Ord)
 
--- | Utilities to get dimension type
+getDimension :: Expression a -> Dim
+getDimension (Expression n mp) =
+    case IM.lookup n mp of
+        Just (dim, _) -> dim
+        Nothing -> error "no dimension of expression"
+
+-- | Utilities to get shape
 --
-type family DimType a where
-    DimType R = ()
-    DimType C = ()
-    DimType OneD = Int
-    DimType OneDC = Int
-    DimType _ = ()
+type family Shape a where
+    Shape R = ()
+    Shape C = ()
+    Shape OneD = Int
+    Shape OneDC = Int
+    Shape _ = ()
 
-class HaveDimension v where
-    getDimension :: Expression v -> DimType v
+class Eq (Shape v) =>
+      HasShape v
+    where
+    getShape :: Expression v -> Shape v
 
-instance HaveDimension R where
-    getDimension (Expression n mp) =
+instance HasShape R where
+    getShape (Expression n mp) =
         case IM.lookup n mp of
             Just (Dim0, _) -> ()
             _ -> error "Expression of R but dimension is not Dim0"
 
-instance HaveDimension C where
-    getDimension (Expression n mp) =
+instance HasShape C where
+    getShape (Expression n mp) =
         case IM.lookup n mp of
             Just (Dim0, _) -> ()
             _ -> error "Expression of C but dimension is not Dim0"
 
-instance HaveDimension OneD where
-    getDimension (Expression n mp) =
+instance HasShape OneD where
+    getShape (Expression n mp) =
         case IM.lookup n mp of
             Just (Dim1 size, _) -> size
             _ -> error "Expression of OneD but dimension is not Int"
 
-instance HaveDimension OneDC where
-    getDimension (Expression n mp) =
+instance HasShape OneDC where
+    getShape (Expression n mp) =
         case IM.lookup n mp of
             Just (Dim1 size, _) -> size
             _ -> error "Expression of OneD but dimension is not Int"
 
--- | Create primitive expression
---
-var :: String -> Expression R
-var name = Expression 123 (IM.fromList [(123, (Dim0, Var name))])
+sameShape :: HasShape a => Expression a -> Expression a -> Bool
+sameShape x y = getShape x == getShape y
 
-varc :: String -> Expression R
-varc name = Expression 123 (IM.fromList [(123, (Dim0, Var name))])
-
-var1d :: Int -> String -> Expression OneD
-var1d size name = Expression 123 (IM.fromList [(123, (Dim1 size, Var name))])
-
-var1dc :: Int -> String -> Expression OneD
-var1dc size name = Expression 123 (IM.fromList [(123, (Dim1 size, Var name))])
