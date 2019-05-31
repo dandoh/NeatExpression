@@ -1,14 +1,14 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Expression where
 
@@ -18,22 +18,24 @@ import qualified Data.IntMap.Strict as IM
 -- | Scalar and vectors
 --
 data R
-    deriving (Additive)
+    deriving (Addable)
 
 data C
-    deriving (Additive)
+    deriving (Addable)
 
 data OneD
-    deriving (Additive)
+    deriving (Addable)
 
 data OneDC
-    deriving (Additive)
+    deriving (Addable)
 
 -- | Real Vector Space
 --
-class Additive v
+class HasShape v =>
+      Addable v
 
-class Additive v =>
+
+class Addable v =>
       RealVectorSpace v s
     | v -> s
 
@@ -62,8 +64,9 @@ data Node
     | Op Operation
     deriving (Show, Eq, Ord)
 
-data Operation =
-    Sum Int Int
+data Operation
+    = Sum Int Int
+    | Prod Int Int
     deriving (Show, Eq, Ord)
 
 -- | Dimension type
