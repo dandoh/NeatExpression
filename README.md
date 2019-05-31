@@ -183,10 +183,22 @@ since `OneD, OneDC` only has meaning in the type-level):
 get the dimension thanks to `-XTypeFamilies`
 
     ```haskell
+    type family Shape a where
+        Shape R = ()
+        Shape C = ()
+        Shape OneD = Int
+        Shape OneDC = Int
+        Shape _ = ()
+      
     > :t getShape
     getShape :: HasShape v => Expression v -> Shape v
+    > :t getShape r
+    getShape r :: ()
     > getShape r
     ()
+    > :t getShape x
+    getShape x :: Int
     > getShape x
     10 
+  
     ```
