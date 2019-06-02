@@ -14,6 +14,7 @@ module Expression where
 
 import Data.IntMap (IntMap)
 import qualified Data.IntMap.Strict as IM
+import Data.Typeable (Typeable)
 
 -- | Data representation of Real and Complex num type
 --
@@ -32,6 +33,9 @@ data C
 
 -- | Type representation of vector dimension
 --
+data Scalar
+    deriving (DimensionType)
+
 data One
     deriving (DimensionType)
 
@@ -43,46 +47,64 @@ data Three
 
 -- | Constraints
 --
-class NumType n
+class NumType rc
 
 class DimensionType d
 
-class Field d n
+class Field d rc
 
-class VectorSpace d n s
+class VectorSpace d rc s
 
 -- | Instances
 --
+instance (DimensionType d, DimensionType rc) => Field d rc
 
-instance (DimensionType d, DimensionType n) => Field d n
+instance (Field d rc) => VectorSpace d rc R
 
-instance (Field d n) => VectorSpace d n R
+instance (Field d rc, rc ~ C) => VectorSpace d rc C
 
-instance (Field d n, n ~ C) => VectorSpace d n C
+-- | Shape type:
+-- []        --> scalar
+-- [n]       --> 1D with size n
+-- [n, m]    --> 2D with size n × m
+-- [n, m, p] --> 3D with size n × m × p
+type Shape = [Int]
 
--- | Proposed new expression type
+-- | Args - list of indices of arguments in the ExpressionMap
 --
-
-
-type Dim = [Int]
-
 type Args = [Int]
 
-type Internal = (Dim, RC, Node)
+-- | This is enough for reconstruct the type of the Expression
+--
+type Internal = (Shape, RC, Node)
 
 type ExpressionMap = IntMap Internal
 
-data Expression d n =
+data Expression d rc =
     Expression
         Int -- the index this expression
         ExpressionMap -- all subexpressions
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
 
 data Node
     = Var String
     | DVar String
     | Sum Args
-    | Prod Args
+    | Mul Args
     | Scale Args --- scalar is in the first
     | Dot Args
     deriving (Show, Eq, Ord)
+
+-- | Auxiliary functions for operations
+--
+getNumType :: Expression d rc -> RC
+getNumType (Expression n mp) =
+    case IM.lookup n mp of
+        Just (_, nt, _) -> nt
+        _ -> error "expression not in map"
+
+getShape :: Expression d rc -> Shape
+getShape (Expression n mp) =
+    case IM.lookup n mp of
+        Just (dim, _, _) -> dim
+        _ -> error "expression not in map"
