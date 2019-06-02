@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 module Operation where
@@ -32,7 +33,7 @@ import Prelude hiding ((*), (+))
 --    h = hash $ Var name
 -- | Operations
 --
-ensureSameShape :: Expression d rc -> Expression d rc -> a -> a
+ensureSameShape :: (Field d rc) => Expression d rc -> Expression d rc -> a -> a
 ensureSameShape e1 e2 after =
     if getShape e1 == getShape e2
         then after
@@ -72,8 +73,12 @@ ensureSameShape e1 e2 after =
     node = Scale [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
 
---dot :: DotProductSpace v s => Expression v -> Expression v -> Expression s
---dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression res newMap
---  where
---    mergedMap = mp1 `IM.union` mp2
---    (newMap, res) = addEdge mergedMap ([], Dot (on e1) [n1, n2]) -- TODO : (on e1) is this right?
+dot :: InnerProductSpace d rc => Expression d rc -> Expression d rc -> Expression Scalar rc
+dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
+    Expression h newMap
+  where
+    numType = getNumType e1
+    shape = []
+    node = Dot [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+

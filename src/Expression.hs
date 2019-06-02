@@ -3,18 +3,19 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Expression where
 
 import Data.IntMap (IntMap)
 import qualified Data.IntMap.Strict as IM
-import Data.Typeable (Typeable)
+import Data.Proxy (Proxy)
+import Data.Typeable (Typeable, typeRep)
 
 -- | Data representation of Real and Complex num type
 --
@@ -45,24 +46,35 @@ data Two
 data Three
     deriving (DimensionType)
 
--- | Constraints
+-- | Type classes
 --
 class NumType rc
 
 class DimensionType d
 
-class Field d rc
+class (DimensionType d, NumType rc) =>
+      Field d rc
 
-class VectorSpace d rc s
+
+class Field d rc =>
+      VectorSpace d rc s
+
+
+class VectorSpace d rc rc =>
+      InnerProductSpace d rc
+
 
 -- | Instances
 --
-instance (DimensionType d, DimensionType rc) => Field d rc
+instance (DimensionType d, NumType rc) => Field d rc
 
 instance (Field d rc) => VectorSpace d rc R
 
-instance (Field d rc, rc ~ C) => VectorSpace d rc C
+instance (Field d C) => VectorSpace d C C
 
+instance (VectorSpace d rc rc) => InnerProductSpace d rc
+
+--instance VectorSpace d rc s => InnerProductSpace d rc s
 -- | Shape type:
 -- []        --> scalar
 -- [n]       --> 1D with size n
@@ -97,13 +109,13 @@ data Node
 
 -- | Auxiliary functions for operations
 --
-getNumType :: Expression d rc -> RC
+getNumType :: (NumType rc) => Expression d rc -> RC
 getNumType (Expression n mp) =
     case IM.lookup n mp of
         Just (_, nt, _) -> nt
         _ -> error "expression not in map"
 
-getShape :: Expression d rc -> Shape
+getShape :: (DimensionType d) => Expression d rc -> Shape
 getShape (Expression n mp) =
     case IM.lookup n mp of
         Just (dim, _, _) -> dim
