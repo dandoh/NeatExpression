@@ -15,87 +15,64 @@ module Expression where
 import Data.IntMap (IntMap)
 import qualified Data.IntMap.Strict as IM
 
--- | Fields
+-- | Data representation of Real and Complex num type
 --
 data RC
     = Real
     | Complex
     deriving (Show, Eq, Ord)
 
-class Property f where
-    on :: Expression f -> RC
-
--- | Vector type
+-- | Type representation of Real and Complex num type
 --
 data R
+    deriving (NumType)
 
 data C
+    deriving (NumType)
 
-data OneD
-
-data OneDC
-
--- | Constraint
+-- | Type representation of vector dimension
 --
-class Property v =>
-      Piecewise v
+data One
+    deriving (DimensionType)
 
+data Two
+    deriving (DimensionType)
 
-class Piecewise v =>
-      VectorSpace v s
+data Three
+    deriving (DimensionType)
 
+-- | Constraints
+--
+class NumType n
 
-class VectorSpace v s =>
-      DotProductSpace v s
-    | v -> s
+class DimensionType d
 
+class Field d n
 
--- | instances
--- TODO : TypeRep instead of using this Property type class ?
-instance Property R where
-    on _ = Real
+class VectorSpace d n s
 
-instance Property C where
-    on _ = Complex
+-- | Instances
+--
 
-instance Property OneD where
-    on _ = Real
+instance (DimensionType d, DimensionType n) => Field d n
 
-instance Property OneDC where
-    on _ = Complex
+instance (Field d n) => VectorSpace d n R
 
-instance Piecewise R
-
-instance Piecewise C
-
-instance Piecewise OneD
-
-instance Piecewise OneDC
-
-instance VectorSpace R R
-
-instance VectorSpace C R
-
-instance VectorSpace OneD R
-
-instance VectorSpace OneDC R
-
-instance VectorSpace OneDC C
-
-instance DotProductSpace OneD R
-
-instance DotProductSpace OneDC C
-
+instance (Field d n, n ~ C) => VectorSpace d n C
 
 -- | Proposed new expression type
 --
-type ExpressionMap = IntMap (Dim, Node)
+
 
 type Dim = [Int]
 
 type Args = [Int]
 
-data Expression a =
+type Internal = (Dim, RC, Node)
+
+type ExpressionMap = IntMap Internal
+
+data Expression d n =
     Expression
         Int -- the index this expression
         ExpressionMap -- all subexpressions
@@ -104,14 +81,8 @@ data Expression a =
 data Node
     = Var String
     | DVar String
-    | Sum RC Args
-    | Prod RC Args
-    | Scale RC Args --- scalar is in the first
-    | Dot RC Args
+    | Sum Args
+    | Prod Args
+    | Scale Args --- scalar is in the first
+    | Dot Args
     deriving (Show, Eq, Ord)
-
-getDimension :: Expression a -> [Int]
-getDimension (Expression n mp) =
-    case IM.lookup n mp of
-        Just (dim, _) -> dim
-        Nothing -> error "not found node in map"
