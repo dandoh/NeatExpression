@@ -25,17 +25,21 @@ c = varc "c"
 
 
 size5Array = U.listArray (0, 4) [1, 2, 3, 4, 5]
-valMap = ValMaps (Map.fromList []) (Map.fromList [("x", size5Array)])
+valMap = ValMaps (Map.fromList [("r", 5)]) (Map.fromList [("x", size5Array)])
 
 main :: IO ()
 main = do
     print x
     let y = x + x
     let z = y + y
+    let t = x * x
+    let u = r `scale` x
     let dotProduct = x `dot` x
     print dotProduct
-    print $ eval x valMap
-    print $ eval y valMap
+    print $ U.elems $ eval x valMap
+    print $ U.elems $ eval y valMap
+    print $ U.elems $ eval t valMap
+    print $ U.elems $ eval u valMap
     print $ eval dotProduct valMap
 --    eval z (Map.fro
 --    print xc

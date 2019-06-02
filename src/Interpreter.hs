@@ -61,7 +61,8 @@ instance Evaluable R where
                             subExp2 = Expression node2 mp :: Expression OneD
                             lst1 = U.elems $ eval subExp1 valMap
                             lst2 = U.elems $ eval subExp2 valMap
-                         in product $ zipWith (+) lst1 lst2
+                         in sum $ zipWith (*) lst1 lst2
+
             _ -> error "expression structure is wrong"
 
 instance Evaluable OneD where
