@@ -17,12 +17,6 @@ import qualified Data.IntMap.Strict as IM
 import Data.Proxy (Proxy)
 import Data.Typeable (Typeable, typeRep)
 
--- | Data representation of Real and Complex num type
---
-data RC
-    = Real
-    | Complex
-    deriving (Show, Eq, Ord)
 
 -- | Type representation of Real and Complex num type
 --
@@ -74,7 +68,6 @@ instance (Field d C) => VectorSpace d C C
 
 instance (VectorSpace d rc rc) => InnerProductSpace d rc
 
---instance VectorSpace d rc s => InnerProductSpace d rc s
 -- | Shape type:
 -- []        --> scalar
 -- [n]       --> 1D with size n
@@ -86,7 +79,14 @@ type Shape = [Int]
 --
 type Args = [Int]
 
--- | This is enough for reconstruct the type of the Expression
+-- | Data representation of Real and Complex num type
+--
+data RC
+    = Real
+    | Complex
+    deriving (Show, Eq, Ord)
+
+-- | Shape and RC -> we can reconstruct the type of the Expression
 --
 type Internal = (Shape, RC, Node)
 
