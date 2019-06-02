@@ -8,36 +8,34 @@ module Operation where
 import Data.IntMap.Strict
 import Expression
 import Hash
+import Utils
 import Prelude hiding ((*), (+))
 
--- | Create primitive expression
+-- | Create primitive expressions
 --
---var :: String -> Expression Scalar R
---var name = Expression h (IM.fromList [(h, ([], Var name))])
---  where
---    h = hash $ Var name
---
---varc :: String -> Expression Scalar C
---varc name = Expression h (IM.fromList [(h, ([], Var name))])
---  where
---    h = hash $ Var name
---
---var1d :: Int -> String -> Expression One R
---var1d size name = Expression h (IM.fromList [(h, ([size], Var name))])
---  where
---    h = hash $ Var name
---
---var1dc :: Int -> String -> Expression One C
---var1dc size name = Expression h (IM.fromList [(h, ([size], Var name))])
---  where
---    h = hash $ Var name
--- | Operations
---
-ensureSameShape :: (Field d rc) => Expression d rc -> Expression d rc -> a -> a
-ensureSameShape e1 e2 after =
-    if getShape e1 == getShape e2
-        then after
-        else error "Ensure same shape failed"
+var :: String -> Expression Scalar R
+var name = Expression h (fromList [(h, node)])
+  where
+    node = ([], Real, Var name)
+    h = hash node
+
+varc :: String -> Expression Scalar C
+varc name = Expression h (fromList [(h, node)])
+  where
+    node = ([], Complex, Var name)
+    h = hash node
+
+var1d :: Int -> String -> Expression One R
+var1d size name = Expression h (fromList [(h, node)])
+  where
+    node = ([size], Real, Var name)
+    h = hash node
+
+var1dc :: Int -> String -> Expression One C
+var1dc size name = Expression h (fromList [(h, node)])
+  where
+    node = ([size], Complex, Var name)
+    h = hash node
 
 -- | Element-wise sum
 --

@@ -107,16 +107,3 @@ data Node
     | Dot Args
     deriving (Show, Eq, Ord)
 
--- | Auxiliary functions for operations
---
-getNumType :: (NumType rc) => Expression d rc -> RC
-getNumType (Expression n mp) =
-    case IM.lookup n mp of
-        Just (_, nt, _) -> nt
-        _ -> error "expression not in map"
-
-getShape :: (DimensionType d) => Expression d rc -> Shape
-getShape (Expression n mp) =
-    case IM.lookup n mp of
-        Just (dim, _, _) -> dim
-        _ -> error "expression not in map"
