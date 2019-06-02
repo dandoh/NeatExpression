@@ -7,7 +7,7 @@ maintainer:          "example@example.com"
 copyright:           "2019 Author name here"
 
 extra-source-files:
-- README.md
+- ARCHIVE.md
 - ChangeLog.md
 
 # Metadata used when publishing your package
@@ -16,7 +16,7 @@ extra-source-files:
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
-# common to point users to the README.md file.
+# common to point users to the ARCHIVE.md file.
 description:         Please see the README on GitHub at <https://github.com/githubuser/TypedExpression#readme>
 
 dependencies:
