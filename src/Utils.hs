@@ -31,7 +31,7 @@ retrieveNode mp n =
         Just (_, node) -> node
         _ -> error "node not in map"
 
-ensureSameShape :: (Field d rc) => Expression d rc -> Expression d rc -> a -> a
+ensureSameShape :: (Ring d rc) => Expression d rc -> Expression d rc -> a -> a
 ensureSameShape e1 e2 after =
     if expressionShape e1 == expressionShape e2
         then after

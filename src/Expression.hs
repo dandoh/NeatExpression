@@ -46,10 +46,10 @@ class NumType rc
 class DimensionType d
 
 class (DimensionType d, NumType rc) =>
-      Field d rc
+      Ring d rc
 
 
-class Field d rc =>
+class Ring d rc =>
       VectorSpace d rc s
 
 
@@ -59,11 +59,11 @@ class VectorSpace d rc rc =>
 
 -- | Instances
 --
-instance (DimensionType d, NumType rc) => Field d rc
+instance (DimensionType d, NumType rc) => Ring d rc
 
-instance (Field d rc) => VectorSpace d rc R
+instance (Ring d rc) => VectorSpace d rc R
 
-instance (Field d C) => VectorSpace d C C
+instance (Ring d C) => VectorSpace d C C
 
 instance (VectorSpace d rc rc) => InnerProductSpace d rc
 
@@ -91,6 +91,7 @@ data RC
 --
 type Internal = (Shape, Node)
 
+
 -- | Hash map of all subexpressions
 --
 type ExpressionMap = IntMap Internal
@@ -103,7 +104,8 @@ data Expression d rc =
         ExpressionMap -- all subexpressions
     deriving (Show, Eq, Ord, Typeable)
 
-data Node
+
+data Node 
     = Var String
     | DVar String
     | Sum RC Args -- element-wise sum

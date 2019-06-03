@@ -33,7 +33,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
 
 -- | Element-wise sum
 --
-(+) :: (Field d rc) => Expression d rc -> Expression d rc -> Expression d rc
+(+) :: (Ring d rc) => Expression d rc -> Expression d rc -> Expression d rc
 (+) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
   where
@@ -44,7 +44,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
 
 -- | Element-wise multiplication (like in MATLAB)
 --
-(.*) :: (Field d rc) => Expression d rc -> Expression d rc -> Expression d rc
+(.*) :: (Ring d rc) => Expression d rc -> Expression d rc -> Expression d rc
 (.*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
   where
@@ -53,7 +53,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
     node = Mul numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
--- | Scale by scalar
+-- | Scale by scalar, TODO: put this inside typeclass with default implementation???
 --
 (*) :: VectorSpace d rc s
     => Expression Scalar s
@@ -89,3 +89,4 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
     shape = expressionShape e1
     node = RealImg [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
+
