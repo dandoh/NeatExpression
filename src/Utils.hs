@@ -18,14 +18,14 @@ expressionNumType (Expression n mp) =
         Just (_, node) -> nodeNumType node
         _ -> error "expression not in map"
 
-getShape :: (DimensionType d) => Expression d rc -> Shape
-getShape (Expression n mp) =
+expressionShape :: (DimensionType d) => Expression d rc -> Shape
+expressionShape (Expression n mp) =
     case lookup n mp of
         Just (dim, _) -> dim
         _ -> error "expression not in map"
 
 ensureSameShape :: (Field d rc) => Expression d rc -> Expression d rc -> a -> a
 ensureSameShape e1 e2 after =
-    if getShape e1 == getShape e2
+    if expressionShape e1 == expressionShape e2
         then after
         else error "Ensure same shape failed"

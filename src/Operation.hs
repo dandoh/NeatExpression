@@ -38,7 +38,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
     ensureSameShape e1 e2 $ Expression h newMap
   where
     numType = expressionNumType e1
-    shape = getShape e1
+    shape = expressionShape e1
     node = Sum numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
@@ -49,7 +49,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
     ensureSameShape e1 e2 $ Expression h newMap
   where
     numType = expressionNumType e1
-    shape = getShape e1
+    shape = expressionShape e1
     node = Mul numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
@@ -62,7 +62,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
 (*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
     numType = expressionNumType e2
-    shape = getShape e2
+    shape = expressionShape e2
     node = Scale numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
@@ -78,4 +78,3 @@ dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
     shape = []
     node = Dot numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
-
