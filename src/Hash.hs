@@ -25,7 +25,7 @@ rehash :: Int -> [Int]
 rehash x = x : [x + (241 + x * 251) * i | i <- [1 ..]]
 
 instance HasHash Internal where
-    hash (shape, node) = hash node * argHash shape
+    hash (shape, node) = hash node * (1 + argHash shape)
 
 instance HasHash RC where
     hash Real = 423
@@ -40,6 +40,7 @@ instance HasHash Node where
             Mul rc args -> (1 + argHash (hash rc : args)) * 2437
             Scale rc args -> (1 + argHash (hash rc : args)) * 3343
             InnerProd rc args -> (1 + argHash (hash rc : args)) * 3187
+            RealImg args -> (1 + argHash args) * 229
 
 -- |
 --

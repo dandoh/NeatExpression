@@ -5,15 +5,13 @@
 
 module Interpreter where
 
-import qualified Data.Array as A
+import Data.Array as A
 import Data.Complex as DC
 import qualified Data.IntMap.Strict as IM
-import Data.Map (Map)
+import Data.Map (Map, fromList)
 import qualified Data.Map as Map
 import Expression
 import Utils
-
-type Array i e = A.Array i e
 
 type family Output d rc where
     Output Scalar R = Double
@@ -30,6 +28,11 @@ data ValMaps =
         }
     deriving (Eq, Show, Ord)
 
+subs :: [(String, Double)] -> [(String, Array Int Double)] -> ValMaps
+subs vm0 vm1 = ValMaps (fromList vm0) (fromList vm1)
+
+-- |
+--
 class Evaluable d rc where
     eval :: ValMaps -> Expression d rc -> Output d rc
 
@@ -51,8 +54,16 @@ instance Evaluable Scalar R where
                 let subExp1 = Expression node1 mp :: Expression Scalar R
                     subExp2 = Expression node2 mp :: Expression Scalar R
                  in eval valMap subExp1 * eval valMap subExp2
+            Just ([], Scale Real [node1, node2]) ->
+                let subExp1 = Expression node1 mp :: Expression Scalar R
+                    subExp2 = Expression node2 mp :: Expression Scalar R
+                 in eval valMap subExp1 * eval valMap subExp2
             Just ([], InnerProd Real [node1, node2]) ->
                 case IM.lookup node1 mp of
+                    Just ([], _) ->
+                        let subExp1 = Expression node1 mp :: Expression Scalar R -- shape is [], so must be Scalar R
+                            subExp2 = Expression node2 mp :: Expression Scalar R -- shape is [], so must be Scalar R
+                         in eval valMap subExp1 * eval valMap subExp2
                     Just ([size], _) ->
                         let subExp1 = Expression node1 mp :: Expression One R -- shape is [size], so must be One R
                             subExp2 = Expression node2 mp :: Expression One R -- shape is [size], so must be One R
@@ -75,19 +86,36 @@ instance Evaluable Scalar C where
                 let subExp1 = Expression node1 mp :: Expression Scalar C
                     subExp2 = Expression node2 mp :: Expression Scalar C
                  in eval valMap subExp1 * eval valMap subExp2
-            Just ([size], Scale Complex [node1, node2]) ->
+            Just ([], Scale Complex [node1, node2]) ->
+                let subExp2 = Expression node2 mp :: Expression Scalar C
+                    scale =
+                        case nodeNumType . retrieveNode mp $ node1 of
+                            Real ->
+                                fromReal . eval valMap $
+                                (Expression node1 mp :: Expression Scalar R)
+                            Complex ->
+                                eval
+                                    valMap
+                                    (Expression node1 mp :: Expression Scalar C)
+                 in scale * eval valMap subExp2
+            Just ([], RealImg [node1, node2]) ->
                 let subExp1 = Expression node1 mp :: Expression Scalar R
-                    subExp2 = Expression node2 mp :: Expression Scalar C
-                 in fromReal (eval valMap subExp1) * eval valMap subExp2
+                    subExp2 = Expression node2 mp :: Expression Scalar R
+                 in eval valMap subExp1 :+ eval valMap subExp2
             Just ([], InnerProd Complex [node1, node2]) ->
                 case IM.lookup node1 mp of
+                    Just ([], _) ->
+                        let subExp1 = Expression node1 mp :: Expression Scalar C -- shape is [], so must be Scalar C
+                            subExp2 = Expression node2 mp :: Expression Scalar C -- shape is [], so must be Scalar C
+                         in eval valMap subExp1 * eval valMap subExp2
+
                     Just ([size], _) ->
-                        let subExp1 = Expression node1 mp :: Expression One C -- shape is [size], so must be One R
-                            subExp2 = Expression node2 mp :: Expression One C -- shape is [size], so must be One R
+                        let subExp1 = Expression node1 mp :: Expression One C -- shape is [size], so must be One C
+                            subExp2 = Expression node2 mp :: Expression One C -- shape is [size], so must be One C
                             lst1 = A.elems $ eval valMap subExp1
                             lst2 = A.elems $ eval valMap subExp2
                          in sum $ zipWith (*) lst1 lst2
-            _ -> error "expression structure Scalar R is wrong"
+            _ -> error "expression structure Scalar C is wrong"
 
 -- |
 --
@@ -117,9 +145,7 @@ instance Evaluable One R where
                 let subExp1 = Expression node1 mp :: Expression Scalar R
                     subExp2 = Expression node2 mp :: Expression One R
                     scale = eval valMap subExp1
-                    lst = A.elems $ eval valMap subExp2
-                    lstRes = map (* scale) lst
-                 in A.listArray (0, size - 1) lstRes
+                 in fmap (* scale) $ eval valMap subExp2
             _ -> error "expression structure One R is wrong"
 
 -- |
@@ -155,4 +181,4 @@ instance Evaluable One C where
                                     valMap
                                     (Expression node1 mp :: Expression Scalar C)
                  in A.listArray (0, size - 1) $ map (* scale) lst
-            _ -> error "expression structure One R is wrong"
+            _ -> error "expression structure One C is wrong"
