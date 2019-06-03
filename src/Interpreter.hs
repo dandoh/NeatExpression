@@ -1,7 +1,7 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Interpreter where
 
@@ -75,6 +75,10 @@ instance Evaluable Scalar C where
                 let subExp1 = Expression node1 mp :: Expression Scalar C
                     subExp2 = Expression node2 mp :: Expression Scalar C
                  in eval valMap subExp1 * eval valMap subExp2
+            Just ([size], Scale Complex [node1, node2]) ->
+                let subExp1 = Expression node1 mp :: Expression Scalar R
+                    subExp2 = Expression node2 mp :: Expression Scalar C
+                 in fromReal (eval valMap subExp1) * eval valMap subExp2
             Just ([], InnerProd Complex [node1, node2]) ->
                 case IM.lookup node1 mp of
                     Just ([size], _) ->

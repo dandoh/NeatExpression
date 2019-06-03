@@ -68,11 +68,11 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
 
 -- | Inner product in Inner Product Space
 --
-dot :: InnerProductSpace d rc
+(<.>) :: InnerProductSpace d rc
     => Expression d rc
     -> Expression d rc
     -> Expression Scalar rc
-dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
+(<.>) e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
     numType = expressionNumType e1
     shape = []

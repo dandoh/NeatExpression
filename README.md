@@ -103,70 +103,78 @@ Operation can then be defined:
 var :: String -> Expression Scalar R
 var name = Expression h (fromList [(h, node)])
   where
-    node = ([], Real, Var name)
-    h = hash node
-
-varc :: String -> Expression Scalar C
-varc name = Expression h (fromList [(h, node)])
-  where
-    node = ([], Complex, Var name)
+    node = ([], Var name)
     h = hash node
 
 var1d :: Int -> String -> Expression One R
 var1d size name = Expression h (fromList [(h, node)])
   where
-    node = ([size], Real, Var name)
+    node = ([size], Var name)
     h = hash node
 
-var1dc :: Int -> String -> Expression One C
-var1dc size name = Expression h (fromList [(h, node)])
+var2d :: (Int, Int) -> String -> Expression Two R
+var2d (size1, size2) name = Expression h (fromList [(h, node)])
   where
-    node = ([size], Complex, Var name)
+    node = ([size1, size2], Var name)
     h = hash node
 
 -- | Element-wise sum
 --
-
 (+) :: (Field d rc) => Expression d rc -> Expression d rc -> Expression d rc
 (+) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
   where
-    numType = getNumType e1
-    shape = getShape e1
-    node = Sum [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    numType = expressionNumType e1
+    shape = expressionShape e1
+    node = Sum numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
--- | Element-wise multiplication
+-- | Element-wise multiplication (like in MATLAB)
 --
 (.*) :: (Field d rc) => Expression d rc -> Expression d rc -> Expression d rc
 (.*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
   where
-    numType = getNumType e1
-    shape = getShape e1
-    node = Mul [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    numType = expressionNumType e1
+    shape = expressionShape e1
+    node = Mul numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
 -- | Scale by scalar
 --
-(*) :: VectorSpace d rc s => Expression Scalar s -> Expression d rc -> Expression d rc
-(*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
-    Expression h newMap
+(*) :: VectorSpace d rc s
+    => Expression Scalar s
+    -> Expression d rc
+    -> Expression d rc
+(*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
-    numType = getNumType e2
-    shape = getShape e2
-    node = Scale [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    numType = expressionNumType e2
+    shape = expressionShape e2
+    node = Scale numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
--- | Dot product in Inner Product Space
+-- | Inner product in Inner Product Space
 --
-dot :: InnerProductSpace d rc => Expression d rc -> Expression d rc -> Expression Scalar rc
-dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
-    Expression h newMap
+(<.>) :: InnerProductSpace d rc
+    => Expression d rc
+    -> Expression d rc
+    -> Expression Scalar rc
+(<.>) e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
-    numType = getNumType e1
+    numType = expressionNumType e1
     shape = []
-    node = Dot [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    node = InnerProd numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
+
+-- | From R to C two part
+-- TODO: more constraint for this operation ? (Field d R, Field d C, ..)
+--
+(+:) :: (DimensionType d) => Expression d R -> Expression d R -> Expression d C
+(+:) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
+    ensureSameShape e1 e2 $ Expression h newMap
+  where
+    shape = expressionShape e1
+    node = RealImg [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
 ```
