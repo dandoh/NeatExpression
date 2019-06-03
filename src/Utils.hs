@@ -12,16 +12,16 @@ import Prelude hiding ((*), (+), lookup)
 
 -- | Auxiliary functions for operations
 --
-getNumType :: (NumType rc) => Expression d rc -> RC
-getNumType (Expression n mp) =
+expressionNumType :: (NumType rc) => Expression d rc -> RC
+expressionNumType (Expression n mp) =
     case lookup n mp of
-        Just (_, nt, _) -> nt
+        Just (_, node) -> nodeNumType node
         _ -> error "expression not in map"
 
 getShape :: (DimensionType d) => Expression d rc -> Shape
 getShape (Expression n mp) =
     case lookup n mp of
-        Just (dim, _, _) -> dim
+        Just (dim, _) -> dim
         _ -> error "expression not in map"
 
 ensureSameShape :: (Field d rc) => Expression d rc -> Expression d rc -> a -> a

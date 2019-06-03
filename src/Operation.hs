@@ -16,37 +16,19 @@ import Utils
 var :: String -> Expression Scalar R
 var name = Expression h (fromList [(h, node)])
   where
-    node = ([], Real, Var name)
-    h = hash node
-
-varc :: String -> Expression Scalar C
-varc name = Expression h (fromList [(h, node)])
-  where
-    node = ([], Complex, Var name)
+    node = ([], Var name)
     h = hash node
 
 var1d :: Int -> String -> Expression One R
 var1d size name = Expression h (fromList [(h, node)])
   where
-    node = ([size], Real, Var name)
-    h = hash node
-
-var1dc :: Int -> String -> Expression One C
-var1dc size name = Expression h (fromList [(h, node)])
-  where
-    node = ([size], Complex, Var name)
+    node = ([size], Var name)
     h = hash node
 
 var2d :: (Int, Int) -> String -> Expression Two R
 var2d (size1, size2) name = Expression h (fromList [(h, node)])
   where
-    node = ([size1, size2], Real, Var name)
-    h = hash node
-
-var2dc :: (Int, Int) -> String -> Expression Two R
-var2dc (size1, size2) name = Expression h (fromList [(h, node)])
-  where
-    node = ([size1, size2], Complex, Var name)
+    node = ([size1, size2], Var name)
     h = hash node
 
 -- | Element-wise sum
@@ -55,10 +37,10 @@ var2dc (size1, size2) name = Expression h (fromList [(h, node)])
 (+) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
   where
-    numType = getNumType e1
+    numType = expressionNumType e1
     shape = getShape e1
-    node = Sum [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    node = Sum numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
 -- | Element-wise multiplication (like in MATLAB)
 --
@@ -66,10 +48,10 @@ var2dc (size1, size2) name = Expression h (fromList [(h, node)])
 (.*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
   where
-    numType = getNumType e1
+    numType = expressionNumType e1
     shape = getShape e1
-    node = Mul [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    node = Mul numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
 -- | Scale by scalar
 --
@@ -79,10 +61,10 @@ var2dc (size1, size2) name = Expression h (fromList [(h, node)])
     -> Expression d rc
 (*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
-    numType = getNumType e2
+    numType = expressionNumType e2
     shape = getShape e2
-    node = Scale [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    node = Scale numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
 -- | Dot product in Inner Product Space
 --
@@ -92,8 +74,8 @@ dot :: InnerProductSpace d rc
     -> Expression Scalar rc
 dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
-    numType = getNumType e1
+    numType = expressionNumType e1
     shape = []
-    node = Dot [n1, n2]
-    (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
+    node = Dot numType [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 

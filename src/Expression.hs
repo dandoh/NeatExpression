@@ -17,7 +17,6 @@ import qualified Data.IntMap.Strict as IM
 import Data.Proxy (Proxy)
 import Data.Typeable (Typeable, typeRep)
 
-
 -- | Type representation of Real and Complex num type
 --
 data R
@@ -88,10 +87,9 @@ data RC
 
 -- | Internal
 -- Shape: Shape of the expression
--- RC: Num type of the expression
 -- we can reconstruct the type of the Expression
 --
-type Internal = (Shape, RC, Node)
+type Internal = (Shape, Node)
 
 -- | Hash map of all subexpressions
 --
@@ -108,9 +106,18 @@ data Expression d rc =
 data Node
     = Var String
     | DVar String
-    | Sum Args
-    | Mul Args
-    | Scale Args --- scalar is in the first
-    | Dot Args
+    | Sum RC Args
+    | Mul RC Args
+    | Scale RC Args --- scalar is in the first
+    | Dot RC Args
     deriving (Show, Eq, Ord)
 
+nodeNumType :: Node -> RC
+nodeNumType node =
+    case node of
+        Var _ -> Real
+        DVar _ -> Real
+        Sum rc _ -> rc
+        Mul rc _ -> rc
+        Scale rc _ -> rc
+        Dot rc _ -> rc
