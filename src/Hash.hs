@@ -39,7 +39,7 @@ instance HasHash Node where
             Sum rc args -> (1 + argHash (hash rc : args)) * 2131
             Mul rc args -> (1 + argHash (hash rc : args)) * 2437
             Scale rc args -> (1 + argHash (hash rc : args)) * 3343
-            Dot rc args -> (1 + argHash (hash rc : args)) * 3187
+            InnerProd rc args -> (1 + argHash (hash rc : args)) * 3187
 
 -- |
 --

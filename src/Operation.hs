@@ -66,7 +66,7 @@ var2d (size1, size2) name = Expression h (fromList [(h, node)])
     node = Scale numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
--- | Dot product in Inner Product Space
+-- | Inner product in Inner Product Space
 --
 dot :: InnerProductSpace d rc
     => Expression d rc
@@ -76,7 +76,7 @@ dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
     numType = expressionNumType e1
     shape = []
-    node = Dot numType [n1, n2]
+    node = InnerProd numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
 
 -- | From R to C two part

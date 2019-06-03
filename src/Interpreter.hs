@@ -51,7 +51,7 @@ instance Evaluable Scalar R where
                 let subExp1 = Expression node1 mp :: Expression Scalar R
                     subExp2 = Expression node2 mp :: Expression Scalar R
                  in eval valMap subExp1 * eval valMap subExp2
-            Just ([], Dot Real [node1, node2]) ->
+            Just ([], InnerProd Real [node1, node2]) ->
                 case IM.lookup node1 mp of
                     Just ([size], _) ->
                         let subExp1 = Expression node1 mp :: Expression One R -- shape is [size], so must be One R
@@ -75,7 +75,7 @@ instance Evaluable Scalar C where
                 let subExp1 = Expression node1 mp :: Expression Scalar C
                     subExp2 = Expression node2 mp :: Expression Scalar C
                  in eval valMap subExp1 * eval valMap subExp2
-            Just ([], Dot Complex [node1, node2]) ->
+            Just ([], InnerProd Complex [node1, node2]) ->
                 case IM.lookup node1 mp of
                     Just ([size], _) ->
                         let subExp1 = Expression node1 mp :: Expression One C -- shape is [size], so must be One R

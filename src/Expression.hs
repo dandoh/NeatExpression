@@ -109,7 +109,7 @@ data Node
     | Sum RC Args -- element-wise sum
     | Mul RC Args -- element-wise multiplication
     | Scale RC Args -- scalar first, TODO: Int Int instead ?
-    | Dot RC Args -- inner product, TODO: Int Int instead ?
+    | InnerProd RC Args -- inner product, TODO: Int Int instead ?
     | RealImg Args -- from real and imagine, TODO: Int Int instead ?
     deriving (Show, Eq, Ord)
 
@@ -121,5 +121,5 @@ nodeNumType node =
         Sum rc _ -> rc
         Mul rc _ -> rc
         Scale rc _ -> rc
-        Dot rc _ -> rc
+        InnerProd rc _ -> rc
         RealImg _ -> Complex
