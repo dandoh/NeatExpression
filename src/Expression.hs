@@ -106,10 +106,11 @@ data Expression d rc =
 data Node
     = Var String
     | DVar String
-    | Sum RC Args
-    | Mul RC Args
-    | Scale RC Args --- scalar is in the first
-    | Dot RC Args
+    | Sum RC Args -- element-wise sum
+    | Mul RC Args -- element-wise multiplication
+    | Scale RC Args -- scalar first, TODO: Int Int instead ?
+    | Dot RC Args -- inner product, TODO: Int Int instead ?
+    | RealImg Args -- from real and imagine, TODO: Int Int instead ?
     deriving (Show, Eq, Ord)
 
 nodeNumType :: Node -> RC
@@ -121,3 +122,4 @@ nodeNumType node =
         Mul rc _ -> rc
         Scale rc _ -> rc
         Dot rc _ -> rc
+        RealImg _ -> Complex

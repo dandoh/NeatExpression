@@ -78,3 +78,14 @@ dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
     shape = []
     node = Dot numType [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
+
+-- | From R to C two part
+-- TODO: more constraint for this operation ? (Field d R, Field d C, ..)
+--
+(+:) :: (DimensionType d) => Expression d R -> Expression d R -> Expression d C
+(+:) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
+    ensureSameShape e1 e2 $ Expression h newMap
+  where
+    shape = expressionShape e1
+    node = RealImg [n1, n2]
+    (newMap, h) = addEdge (mp1 `union` mp2) (shape, node)
