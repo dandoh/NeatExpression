@@ -161,7 +161,7 @@ instance Evaluable One C where
                     lst2 = A.elems $ eval valMap subExp2
                     lstRes = zipWith (+) lst1 lst2
                  in A.listArray (0, size - 1) lstRes
-            Just ([size], Mul Real [node1, node2]) ->
+            Just ([size], Mul Complex [node1, node2]) ->
                 let subExp1 = Expression node1 mp :: Expression One C
                     subExp2 = Expression node2 mp :: Expression One C
                     lst1 = A.elems $ eval valMap subExp1
@@ -181,4 +181,11 @@ instance Evaluable One C where
                                     valMap
                                     (Expression node1 mp :: Expression Scalar C)
                  in A.listArray (0, size - 1) $ map (* scale) lst
+            Just ([size], RealImg [node1, node2]) ->
+                let subExp1 = Expression node1 mp :: Expression One R
+                    subExp2 = Expression node2 mp :: Expression One R
+                    lst1 = A.elems $ eval valMap subExp1
+                    lst2 = A.elems $ eval valMap subExp2
+                    lstRes = zipWith (:+) lst1 lst2
+                 in A.listArray (0, size - 1) lstRes
             _ -> error "expression structure One C is wrong"
