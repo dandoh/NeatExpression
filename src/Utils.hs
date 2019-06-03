@@ -5,6 +5,7 @@
 
 module Utils where
 
+import Data.Complex
 import Data.IntMap.Strict
 import Expression
 import Hash
@@ -24,8 +25,18 @@ expressionShape (Expression n mp) =
         Just (dim, _) -> dim
         _ -> error "expression not in map"
 
+retrieveNode :: ExpressionMap -> Int -> Node
+retrieveNode mp n =
+    case lookup n mp of
+        Just (_, node) -> node
+        _ -> error "node not in map"
+
 ensureSameShape :: (Field d rc) => Expression d rc -> Expression d rc -> a -> a
 ensureSameShape e1 e2 after =
     if expressionShape e1 == expressionShape e2
         then after
         else error "Ensure same shape failed"
+
+
+fromReal :: Double -> Complex Double
+fromReal x = x :+ 0
