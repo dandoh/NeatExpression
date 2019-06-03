@@ -60,7 +60,7 @@ hashOutcome mp new newHash =
 
 addEdge :: ExpressionMap -> Internal -> (ExpressionMap, Int)
 addEdge mp e =
-    case dropWhile (== IsClash) $ map (hashOutcome mp e) $ rehash $ hash e of
+    case dropWhile (== IsClash) . map (hashOutcome mp e) . rehash . hash $ e of
         (IsDuplicate h:_) -> (mp, h)
         (IsNew h:_) -> (IM.insert h e mp, h)
         _ -> error "addEdge everything clashed!"

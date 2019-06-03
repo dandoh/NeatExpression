@@ -86,12 +86,19 @@ data RC
     | Complex
     deriving (Show, Eq, Ord)
 
--- | Shape and RC -> we can reconstruct the type of the Expression
+-- | Internal
+-- Shape: Shape of the expression
+-- RC: Num type of the expression
+-- we can reconstruct the type of the Expression
 --
 type Internal = (Shape, RC, Node)
 
+-- | Hash map of all subexpressions
+--
 type ExpressionMap = IntMap Internal
 
+-- | Expression with 2 phantom types (dimension and num type)
+--
 data Expression d rc =
     Expression
         Int -- the index this expression

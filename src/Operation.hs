@@ -8,8 +8,8 @@ module Operation where
 import Data.IntMap.Strict
 import Expression
 import Hash
-import Utils
 import Prelude hiding ((*), (+))
+import Utils
 
 -- | Create primitive expressions
 --
@@ -37,9 +37,20 @@ var1dc size name = Expression h (fromList [(h, node)])
     node = ([size], Complex, Var name)
     h = hash node
 
+var2d :: (Int, Int) -> String -> Expression Two R
+var2d (size1, size2) name = Expression h (fromList [(h, node)])
+  where
+    node = ([size1, size2], Real, Var name)
+    h = hash node
+
+var2dc :: (Int, Int) -> String -> Expression Two R
+var2dc (size1, size2) name = Expression h (fromList [(h, node)])
+  where
+    node = ([size1, size2], Complex, Var name)
+    h = hash node
+
 -- | Element-wise sum
 --
-
 (+) :: (Field d rc) => Expression d rc -> Expression d rc -> Expression d rc
 (+) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
     ensureSameShape e1 e2 $ Expression h newMap
@@ -49,7 +60,7 @@ var1dc size name = Expression h (fromList [(h, node)])
     node = Sum [n1, n2]
     (newMap, h) = addEdge (mp1 `union` mp2) (shape, numType, node)
 
--- | Element-wise multiplication
+-- | Element-wise multiplication (like in MATLAB)
 --
 (.*) :: (Field d rc) => Expression d rc -> Expression d rc -> Expression d rc
 (.*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
@@ -62,9 +73,11 @@ var1dc size name = Expression h (fromList [(h, node)])
 
 -- | Scale by scalar
 --
-(*) :: VectorSpace d rc s => Expression Scalar s -> Expression d rc -> Expression d rc
-(*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
-    Expression h newMap
+(*) :: VectorSpace d rc s
+    => Expression Scalar s
+    -> Expression d rc
+    -> Expression d rc
+(*) e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
     numType = getNumType e2
     shape = getShape e2
@@ -73,9 +86,11 @@ var1dc size name = Expression h (fromList [(h, node)])
 
 -- | Dot product in Inner Product Space
 --
-dot :: InnerProductSpace d rc => Expression d rc -> Expression d rc -> Expression Scalar rc
-dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) =
-    Expression h newMap
+dot :: InnerProductSpace d rc
+    => Expression d rc
+    -> Expression d rc
+    -> Expression Scalar rc
+dot e1@(Expression n1 mp1) e2@(Expression n2 mp2) = Expression h newMap
   where
     numType = getNumType e1
     shape = []
